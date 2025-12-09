@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<!-- JSON data for charts -->
+<script id="dashboard-data" type="application/json">
+  {{ {
+    "category_labels": category_labels,
+    "category_counts": category_counts,
+    "price_ranges": price_ranges,
+    "price_counts": price_counts,
+    "top_suppliers": supplier_overview.top_suppliers
+  } | tojson }}
+</script>
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="text-3xl font-bold mb-6 text-center dark:text-gray-100">📊 Inventory Dashboard</h1>
+
+  <!-- Key Metrics -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
+      <h2 class="text-xl font-semibold mb-2 dark:text-gray-100">Total Inventory Value</h2>
+      <p class="text-2xl font-bold text-blue-600">${{ total_inventory_value }}</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
+      <h2 class="text-xl font-semibold mb-2">Total Suppliers</h2>
+      <p class="text-2xl font-bold text-green-600">{{ supplier_overview.unique_suppliers }}</p>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow">
+      <canvas id="categoryChart"></canvas>
+      <p class="text-sm text-gray-900 dark:text-gray-100 mt-2 text-center">
+        Distribution of inventory items across different categories.
+      </p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow flex flex-col justify-center items-center h-64">
+      <canvas id="priceChart" class="w-full max-w-xs h-40"></canvas>
+      <p class="text-sm text-gray-800 dark:text-gray-100 mt-4 text-center">
+        Price range breakdown of items in your inventory.
+      </p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow">
+      <canvas id="supplierChart"></canvas>
+      <p class="text-sm text-gray-800 dark:text-gray-100 mt-2 text-center">
+        Top suppliers based on number of items supplied.
+      </p>
+    </div>
+  </div>
+
+  <!-- Low Stock Section -->
+  <div class="mt-10 bg-white dark:bg-gray-800 dark:text-gray-100 px-4 py-3 rounded shadow max-w-xl mx-auto">
+    <h2 class="text-xl font-semibold mb-3 text-center dark:text-gray-100">Low Stock Items</h2>
+    <ul class="space-y-2">
+      {% for item in low_stock_items %}
+        <li class="text-red-600 text-sm">🔻 {{ item.name }} (Qty: {{ item.quantity }} )</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Recently Added Items Section -->
+  <div class="mt-10 bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
+    <h2 class="text-xl font-semibold mb-4 dark:text-gray-100">🕒 Recently Added Items</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {% for item in recent_items %}
+      <div class="border dark:border-gray-600 p-4 rounded shadow hover:shadow-lg transition">
+        <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ item.name }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Qty: {{ item.quantity }} | ${{ "%.2f" % item.price }}</p>
+        <p class="text-xs text-gray-400 dark:text-gray-400">Added on {{ item.created_at.strftime('%Y-%m-%d') }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

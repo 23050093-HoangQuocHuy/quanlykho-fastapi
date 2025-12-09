@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section id="hero" class="relative h-screen overflow-hidden">
+  <div class="absolute inset-0 bg-black"></div>
+  <div id="particles-js" class="absolute inset-0 z-10"></div>
+  <div class="relative z-20 flex flex-col items-center justify-center h-full text-center text-white" data-aos="fade-up">
+    <h1 class="text-5xl md:text-6xl font-bold mb-4">Welcome to Your Inventory Hub</h1>
+    <p class="text-xl md:text-2xl mb-8">Efficient, modern, and intuitive inventory management at your fingertips.</p>
+    <a href="/login" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold transition duration-300 shadow-lg">
+      Get Started
+    </a>
+  </div>
+</section>
+
+<section class="py-16 bg-gray-100 dark:bg-gray-800">  
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div data-aos="fade-right">
+        
+        <h2 class="text-4xl font-bold mb-4 dark:text-gray-100">Streamlined Management</h2>
+       
+        <p class="text-gray-700 dark:text-gray-300 text-lg">
+          Manage your inventory with ease using our intuitive interface. Track stock levels, monitor orders, and update products seamlessly.
+        </p>
+      </div>
+      <div data-aos="fade-left">
+        <img src="/static/images/ManageInventoryDashboard.jpg" alt="Manage Inventory Dashboard" class="rounded shadow-lg">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-16 bg-gray-100 dark:bg-gray-800">  
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div data-aos="fade-right">
+        <h2 class="text-4xl font-bold mb-4 dark:text-gray-100">A Simple Way to View All Inventory</h2>
+        <p class="text-gray-700 dark:text-gray-300 text-lg">
+          Easily access and review your entire inventory at a glance. Our clean dashboard layout helps you stay organized, make informed decisions, and ensure nothing goes unnoticed.
+        </p>
+      </div>
+      <div data-aos="fade-left">
+        <img src="/static/images/ViewInventoryDashboard.jpg" alt="View Inventory Dashboard" class="rounded shadow-lg">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-16 bg-gray-100 dark:bg-gray-800">  
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div data-aos="fade-right">
+        <h2 class="text-4xl font-bold mb-4 dark:text-gray-100">Visualize and Track Your Inventory</h2>
+        <p class="text-gray-700 dark:text-gray-300 text-lg">
+          Get a real-time overview of your inventory with intuitive charts, low stock alerts, and recent activity—all in one place.
+        </p>
+      </div>
+      <div data-aos="fade-left">
+        <img src="/static/images/Dashboard.jpg" alt="View Inventory Dashboard" class="rounded shadow-lg">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-16">  
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4 dark:text-gray-100">Cutting-Edge Features</h2>
+      <p class="text-gray-700 dark:text-gray-300 text-lg">
+        Explore powerful tools that help you manage your inventory in real-time, with analytics and alerts to keep you informed.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="p-6 bg-white dark:bg-gray-800 dark:text-gray-100 rounded shadow" data-aos="fade-up">
+        <h3 class="text-xl font-semibold mb-2 dark:text-gray-100">Real-Time Analytics</h3>
+        <p class="text-gray-600 dark:text-gray-300">
+          Monitor your stock levels and sales trends instantly.
+        </p>
+      </div>
+      <div class="p-6 bg-white dark:bg-gray-800 dark:text-gray-100 rounded shadow" data-aos="fade-up" data-aos-delay="200">
+        <h3 class="text-xl font-semibold mb-2 dark:text-gray-100">Seamless Inventory Editing</h3>
+        <p class="text-gray-600 dark:text-gray-300">
+          Easily update quantities, prices, and categories with an intuitive, user-friendly interface.
+        </p>
+      </div>
+      <div class="p-6 bg-white dark:bg-gray-800 dark:text-gray-100 rounded shadow" data-aos="fade-up" data-aos-delay="400">
+        <h3 class="text-xl font-semibold mb-2 dark:text-gray-100">Responsive Design</h3>
+        <p class="text-gray-600 dark:text-gray-300">
+          Access your inventory from any device, anywhere.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

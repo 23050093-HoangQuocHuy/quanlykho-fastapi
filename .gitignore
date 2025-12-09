@@ -1,0 +1,24 @@
+# Ignore Python virtual environment
+venv/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore environment variables
+.env
+
+# Ignore SQLite database files
+*.db
+
+# Ignore logs
+*.log
+
+# Ignore compiled files
+*.egg-info/
+dist/
+build/
+
+# Ignore Docker artifacts
+*.pid

@@ -1,0 +1,46 @@
+@keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .animate-gradient {
+    background: linear-gradient(270deg, #1e3a8a, #3b82f6, #06b6d4, #0ea5e9);
+    background-size: 800% 800%;
+    animation: gradientAnimation 15s ease infinite;
+  }
+
+  .google-signin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: white;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+    text-decoration: none;
+  }
+  
+  .google-signin-btn:hover {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+  }
+  
+  .google-icon-wrapper {
+    display: flex;
+    align-items: center;
+  }
+  
+  
+  

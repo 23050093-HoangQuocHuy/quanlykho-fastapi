@@ -1,15 +1,31 @@
-# Hệ thống quản lý kho (FastAPI + Jinja2 + TailwindCSS)
+# Hệ thống Quản Lý Kho – FastAPI
+## 1. Giới thiệu
+Hệ thống quản lý kho được xây dựng bằng FastAPI, quản lý kho hàng, nhà cung cấp và tạo đơn hàng.
 
-## Thiết lập và cài đặt
+## 2. Công nghệ sử dụng
+- Python 3.10+
+- FastAPI
+- SQLAlchemy
+- SQLite
+- Jinja2
+- Bootstrap
 
-### Sao chép kho lưu trữ
+## 3. Chức năng chính
+- Quản lý danh mục sản phẩm
+- Quản lý nhà cung cấp
+- Tạo và quản lý đơn hàng
+- Thống kê tổng quan (dashboard)
+
+## 4. Thiết lập và cài đặt
+
+### Sao chép
 
 ``` bash
 git clone https://github.com/23050093-HoangQuocHuy/quanlykho-fastapi
 cd quanlykho-fastapi
 ```
 
-### Cài đặt các gói
+### 5. Cài đặt các gói
 
 ``` bash
 python -m venv .venv
@@ -18,7 +34,7 @@ pip install -r requirements.txt
 
 ```
 
-### Chạy ứng dụng
+### 6. Chạy ứng dụng
 
 ``` bash
 python -m uvicorn app.main:app --reload --port 8500
@@ -30,7 +46,7 @@ Visit:
 
 ------------------------------------------------------------------------
 
-## Biến môi trường (.env)
+## 7. Biến môi trường (.env)
 
 ``` env
 SECRET_KEY=your_secret_key_here
@@ -41,7 +57,7 @@ REDIRECT_URI=http://localhost:8500/auth/google/callback
 
 ------------------------------------------------------------------------
 
-## Đặc trưng
+## 8. Đặc trưng
 
 -   CRUD Inventory (Products, Categories, Suppliers)
 -   Orders system (auto stock deduction)
@@ -55,7 +71,7 @@ REDIRECT_URI=http://localhost:8500/auth/google/callback
 
 ------------------------------------------------------------------------
 
-## Giao diện người dùng
+## 9. Giao diện người dùng
 
   Route               Description
   ------------------- --------------
@@ -70,7 +86,7 @@ REDIRECT_URI=http://localhost:8500/auth/google/callback
 
 ------------------------------------------------------------------------
 
-## Tài liệu API
+## 10. Tài liệu API
 
 Swagger:
 
@@ -78,13 +94,13 @@ Swagger:
 
 ------------------------------------------------------------------------
 
-## Bảng ERD
+## 11. Bảng ERD
 
 ERD-Image.png
 
 ------------------------------------------------------------------------
 
-## Những cải tiến trong tương lai
+## 12. Những cải tiến trong tương lai
 
 -  Multi-warehouse
 -  Export reports

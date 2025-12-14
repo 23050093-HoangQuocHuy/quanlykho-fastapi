@@ -33,3 +33,18 @@ async def low_stock_items(
         {"name" : item.name, "quantity" : item.quantity}
         for item in items
     ]
+
+
+from fastapi import APIRouter
+from app.email_utils import send_email_alert    # nhớ đúng đường dẫn
+
+router = APIRouter()
+
+@router.get("/test-email")
+async def test_email():
+    await send_email_alert(
+        to_email="huy1995303@gmail.com",
+        subject="Test Email Alert",
+        message="Email alert hoạt động tốt!"
+    )
+    return {"message": "Đã gửi email thành công!"}

@@ -1,98 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Inventory Management System{% endblock %}</title>
+    <title>{% block title %}Hệ Thống Quản Lý Kho{% endblock %}</title>
+
     <script>
       if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.classList.add('dark');
       }
     </script>
-    <!-- load the Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- configure Tailwind dark mode -->
+
     <script>
       tailwind.config = {
         darkMode: 'class'
       };
     </script>
-  
+
     <style>
       html {
         transition: background-color 0.3s, color 0.3s;
       }
     </style>
-    
-    <!-- extra libraries -->
+
     <script src="https://unpkg.com/alpinejs@3.10.2/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
     <link rel="icon" href="/static/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- theme Toggle Logic -->
+
     <script src="/static/js/theme.js" defer></script>
-    
-    <!-- custom Styles -->
+
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
 <body class="transition-colors duration-300 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen">
+
   <header class="bg-white dark:bg-gray-800 shadow">
     <div class="w-full py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Inventory Management System</h1>
+      
+      <!-- WEBSITE TITLE -->
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        Hệ Thống Quản Lý Kho
+      </h1>
+
       <nav class="flex items-center">
+
         {% if current_user %}
+
+        <!-- DASHBOARD -->
         <div class="ml-4">
-          <a href="/dashboard" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-            Dashboard
+          <a href="/dashboard" 
+            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 
+                   bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 
+                   hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+            Bảng Điều Khiển
           </a>
         </div>
-          <div x-data="{ invOpen: false }" class="relative inline-block text-left ml-4">
-            <button @click="invOpen = !invOpen" type="button" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-              Inventory
-              <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div x-show="invOpen" @click.away="invOpen = false" x-transition class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
-              <div class="py-1" role="menu" aria-orientation="vertical">
-                <a href="/inventory/manage" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">Manage Inventory</a>
-                <a href="/inventory/view" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">View Inventory</a>
-              </div>
+
+        <!-- INVENTORY DROPDOWN -->
+        <div x-data="{ invOpen: false }" class="relative inline-block text-left ml-4">
+          <button @click="invOpen = !invOpen"
+            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 
+                   bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 
+                   hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+            Kho Hàng
+            <svg class="-mr-1 ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div x-show="invOpen" @click.away="invOpen = false" x-transition
+            class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg 
+                   bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+            <div class="py-1">
+
+              <a href="/inventory/manage" 
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Quản Lý Kho
+              </a>
+
+              <a href="/inventory/view" 
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Xem Kho
+              </a>
+
             </div>
           </div>
-          
-          <div x-data="{ open: false }" class="relative inline-block text-left ml-4">
-            <button @click="open = !open" type="button" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
-              {{ current_user.username }}
-              <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div x-show="open" @click.away="open = false" x-transition class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
-              <div class="py-1" role="menu" aria-orientation="vertical">
-                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">Profile</a>
-                <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">Logout</a>
-              </div>
+        </div>
+
+        <!-- ORDERS DROPDOWN — NEW -->
+        <div x-data="{ orderOpen: false }" class="relative inline-block text-left ml-4">
+          <button @click="orderOpen = !orderOpen"
+            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 
+                   bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 
+                   hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+            Đơn Hàng
+            <svg class="-mr-1 ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div x-show="orderOpen" @click.away="orderOpen = false" x-transition
+            class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg 
+                   bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+
+            <div class="py-1">
+
+              <a href="/orders" 
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Tạo Đơn Hàng
+              </a>
+
+              <a href="/orders" 
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Danh Sách Đơn
+              </a>
+
             </div>
           </div>
+        </div>
+
+        <!-- USER MENU -->
+        <div x-data="{ open: false }" class="relative inline-block text-left ml-4">
+          <button @click="open = !open"
+            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 
+                   bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 
+                   hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">
+
+            {{ current_user.username }}
+
+            <svg class="-mr-1 ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div x-show="open" @click.away="open = false" x-transition
+            class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg 
+                   bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+            
+            <div class="py-1">
+
+              <a href="/profile" 
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Hồ Sơ
+              </a>
+
+              <a href="/logout" 
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Đăng Xuất
+              </a>
+
+            </div>
+          </div>
+        </div>
+
         {% else %}
-          <a href="/" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">Home</a>
-          <a href="/login" class="ml-4 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">Login</a>
-          <a href="/register" class="ml-4 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none">Register</a>
+        <!-- GUEST VIEW -->
+        <a href="/" class="btn-nav">Trang Chủ</a>
+        <a href="/login" class="btn-nav ml-4">Đăng Nhập</a>
+        <a href="/register" class="btn-nav ml-4">Đăng Ký</a>
         {% endif %}
+
       </nav>
     </div>
   </header>
+
   <main class="w-full py-6 sm:px-6 lg:px-8 flex-grow">
     {% block content %}{% endblock %}
   </main>
+
   <footer class="bg-white dark:bg-gray-800 border-t mt-auto">
     <div class="w-full py-4 px-4 text-center text-gray-600 dark:text-gray-100">
-      &copy; 2025 Inventory Management System. All rights reserved.
+      &copy; 2025 Hệ Thống Quản Lý Kho. Bảo Lưu Mọi Quyền.
     </div>
   </footer>
+
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script src="/static/js/script.js" defer></script>
 

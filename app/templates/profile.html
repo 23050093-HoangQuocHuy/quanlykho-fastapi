@@ -1,46 +1,61 @@
 {% extends "base.html" %}
-{% block title %}Profile{% endblock %}
+{% block title %}Hồ sơ cá nhân{% endblock %}
 {% block content %}
 
-<!-- welcome banner -->
+<!-- Welcome banner -->
 <div class="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-gray-600 dark:to-gray-800 p-6 rounded text-white shadow-lg text-center max-w-5xl mx-auto">
-    <h2 class="text-3xl font-semibold">Welcome, {{ current_user.username }}!</h2>
-    <p class="text-lg mt-2">Here's your personal dashboard hub</p>
+    <h2 class="text-3xl font-semibold">Xin chào, {{ current_user.username }}!</h2>
+    <p class="text-lg mt-2">Đây là trang thông tin cá nhân của bạn</p>
 </div>
 
-<!-- profile card -->
+<!-- Profile Card -->
 <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded-lg shadow mt-6 max-w-5xl mx-auto flex flex-col items-center">
-    <!-- light mode avatar -->
-    <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.username }}&backgroundColor=e0e0e0&fontSize=40&textColor=ffffff&radius=50" 
-        alt="User Avatar"
+
+    <!-- Avatar chế độ sáng -->
+    <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.username }}&backgroundColor=e0e0e0&fontSize=40&textColor=ffffff&radius=50"
+        alt="Avatar người dùng"
         class="w-24 h-24 rounded-full mb-4 border-4 border-blue-300 dark:hidden">
-    <!-- dark mode avatar -->
-    <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.username }}&backgroundColor=E5E7EB&textColor=1f2937&fontSize=40&radius=50" 
-        alt="User Avatar"
+
+    <!-- Avatar chế độ tối -->
+    <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.username }}&backgroundColor=E5E7EB&textColor=1f2937&fontSize=40&radius=50"
+        alt="Avatar người dùng"
         class="w-24 h-24 rounded-full mb-4 border-4 border-blue-300 hidden dark:block">
-    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ current_user.username }}</h3>
-    <p class="text-gray-500 dark:text-gray-400">Role: {{ current_user.role }}</p>
+
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
+        {{ current_user.username }}
+    </h3>
+    <p class="text-gray-500 dark:text-gray-400">
+        Vai trò: {{ current_user.role }}
+    </p>
 </div>
 
+<!-- Info Card -->
 <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded-lg shadow mt-6 max-w-5xl mx-auto">
-    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Your Info</h3>
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Thông tin tài khoản</h3>
     <ul class="text-gray-700 dark:text-gray-300 space-y-2">
-        <li><strong>Username: </strong>{{ current_user.username }}</li>
-        <li><strong>Member Since: </strong>{{ current_user.created_at.strftime('%B %d, %Y') }}</li>
+        <li><strong>Tên đăng nhập:</strong> {{ current_user.username }}</li>
+        <li><strong>Ngày tạo tài khoản:</strong> {{ current_user.created_at.strftime('%d/%m/%Y') }}</li>
     </ul>
-
 </div>
 
+<!-- Theme Card -->
 <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded-lg shadow mt-6 max-w-5xl mx-auto">
+    <h3 class="text-lg font-semibold mb-4">Cài đặt giao diện</h3>
     <ul class="text-gray-700 dark:text-gray-300 space-y-2">
+
         <li class="flex items-center justify-between">
-            <span><strong>Theme:</strong> <span id="theme-label">Light Mode</span></span>
+            <span>
+                <strong>Chế độ giao diện:</strong> 
+                <span id="theme-label">Chế độ sáng</span>
+            </span>
+
             <label class="inline-flex items-center cursor-pointer relative">
                 <input type="checkbox" id="theme-toggle" class="sr-only peer" />
                 <div class="w-10 h-5 bg-gray-300 dark:bg-gray-600 rounded-full shadow-inner transition-all duration-300 peer-checked:bg-blue-500"></div>
                 <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 transform peer-checked:translate-x-5"></div>
-              </label>
-          </li>
+            </label>
+        </li>
+
     </ul>
 </div>
 

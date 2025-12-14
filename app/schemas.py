@@ -114,3 +114,34 @@ class UserPasswordUpdate(BaseModel):
         orm_mode = True
 
 InventoryItem.model_rebuild()
+class OrderItemBase(BaseModel):
+    item_id: int
+    quantity: int
+    price: float
+
+
+class OrderItemCreate(OrderItemBase):
+    pass
+
+
+class OrderItem(OrderItemBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+class OrderBase(BaseModel):
+    status: str | None = "pending"
+
+
+class OrderCreate(BaseModel):
+    items: list[OrderItemCreate]
+
+
+class Order(OrderBase):
+    order_id: int
+    created_at: datetime
+    created_by: int
+    items: list[OrderItem]
+
+    class Config:
+        from_attributes = True

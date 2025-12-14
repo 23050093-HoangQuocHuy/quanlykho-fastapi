@@ -1,24 +1,15 @@
-# Ignore Python virtual environment
-venv/
-
-# Ignore Python cache
+# Python
 __pycache__/
 *.pyc
-*.pyo
 
-# Ignore environment variables
+# Virtual env
+venv/
 .env
 
-# Ignore SQLite database files
+# Database
+*.sqlite3
 *.db
 
-# Ignore logs
-*.log
-
-# Ignore compiled files
-*.egg-info/
-dist/
-build/
-
-# Ignore Docker artifacts
-*.pid
+# OS
+.DS_Store
+Thumbs.db

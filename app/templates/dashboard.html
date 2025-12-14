@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Bảng điều khiển{% endblock %}
 {% block content %}
 <!-- JSON data for charts -->
 <script id="dashboard-data" type="application/json">
@@ -13,17 +13,17 @@
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-6">
-  <h1 class="text-3xl font-bold mb-6 text-center dark:text-gray-100">📊 Inventory Dashboard</h1>
+  <h1 class="text-3xl font-bold mb-6 text-center dark:text-gray-100">📊 Bảng điều khiển kho hàng</h1>
 
   <!-- Key Metrics -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
-      <h2 class="text-xl font-semibold mb-2 dark:text-gray-100">Total Inventory Value</h2>
+      <h2 class="text-xl font-semibold mb-2 dark:text-gray-100">Tổng giá trị kho hàng</h2>
       <p class="text-2xl font-bold text-blue-600">${{ total_inventory_value }}</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
-      <h2 class="text-xl font-semibold mb-2">Total Suppliers</h2>
+      <h2 class="text-xl font-semibold mb-2">Tổng số nhà cung cấp</h2>
       <p class="text-2xl font-bold text-green-600">{{ supplier_overview.unique_suppliers }}</p>
     </div>
   </div>
@@ -33,42 +33,44 @@
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow">
       <canvas id="categoryChart"></canvas>
       <p class="text-sm text-gray-900 dark:text-gray-100 mt-2 text-center">
-        Distribution of inventory items across different categories.
+        Phân bố sản phẩm theo từng danh mục.
       </p>
     </div>
+
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow flex flex-col justify-center items-center h-64">
       <canvas id="priceChart" class="w-full max-w-xs h-40"></canvas>
       <p class="text-sm text-gray-800 dark:text-gray-100 mt-4 text-center">
-        Price range breakdown of items in your inventory.
+        Thống kê sản phẩm theo mức giá.
       </p>
     </div>
+
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow">
       <canvas id="supplierChart"></canvas>
       <p class="text-sm text-gray-800 dark:text-gray-100 mt-2 text-center">
-        Top suppliers based on number of items supplied.
+        Top nhà cung cấp theo số lượng sản phẩm.
       </p>
     </div>
   </div>
 
   <!-- Low Stock Section -->
   <div class="mt-10 bg-white dark:bg-gray-800 dark:text-gray-100 px-4 py-3 rounded shadow max-w-xl mx-auto">
-    <h2 class="text-xl font-semibold mb-3 text-center dark:text-gray-100">Low Stock Items</h2>
+    <h2 class="text-xl font-semibold mb-3 text-center dark:text-gray-100">Sản phẩm sắp hết hàng</h2>
     <ul class="space-y-2">
       {% for item in low_stock_items %}
-        <li class="text-red-600 text-sm">🔻 {{ item.name }} (Qty: {{ item.quantity }} )</li>
+        <li class="text-red-600 text-sm">🔻 {{ item.name }} (SL: {{ item.quantity }} )</li>
       {% endfor %}
     </ul>
   </div>
 
   <!-- Recently Added Items Section -->
   <div class="mt-10 bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
-    <h2 class="text-xl font-semibold mb-4 dark:text-gray-100">🕒 Recently Added Items</h2>
+    <h2 class="text-xl font-semibold mb-4 dark:text-gray-100">🕒 Sản phẩm mới thêm gần đây</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {% for item in recent_items %}
       <div class="border dark:border-gray-600 p-4 rounded shadow hover:shadow-lg transition">
         <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ item.name }}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-300">Qty: {{ item.quantity }} | ${{ "%.2f" % item.price }}</p>
-        <p class="text-xs text-gray-400 dark:text-gray-400">Added on {{ item.created_at.strftime('%Y-%m-%d') }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">SL: {{ item.quantity }} | ${{ "%.2f" % item.price }}</p>
+        <p class="text-xs text-gray-400 dark:text-gray-400">Ngày thêm: {{ item.created_at.strftime('%Y-%m-%d') }}</p>
       </div>
       {% endfor %}
     </div>

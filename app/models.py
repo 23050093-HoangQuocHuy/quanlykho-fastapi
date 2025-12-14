@@ -60,13 +60,44 @@ class ItemSupplier(Base):
 
 class User(Base):
     __tablename__ = "users"
-
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     password = Column(String)
     role = Column(String)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
     # user could have created many inventory items
     items_created = relationship("InventoryItem", backref="creator")
+    # user có thể tạo nhiều đơn hàng
+    orders = relationship("Order", back_populates="user")
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    order_id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    status = Column(String, default="pending")  # pending / completed / cancelled
+    created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+
+    # quan hệ tới User
+    user = relationship("User", back_populates="orders")
+
+    # danh sách các dòng hàng trong đơn
+    items = relationship("OrderItem", back_populates="order")
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
+    item_id = Column(Integer, ForeignKey("inventory_items.item_id"), nullable=False)
+
+    quantity = Column(Integer, nullable=False)
+    price = Column(Numeric, nullable=False)  # giá tại thời điểm đặt hàng
+
+    # quan hệ tới Order
+    order = relationship("Order", back_populates="items")
+
+    # quan hệ tới InventoryItem (1 dòng order tham chiếu 1 sản phẩm)
+    item = relationship("InventoryItem")
 

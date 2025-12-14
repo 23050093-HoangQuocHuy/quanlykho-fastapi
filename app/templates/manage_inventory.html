@@ -1,104 +1,196 @@
 {% extends "base.html" %}
-{% block title %}Manage Inventory{% endblock %}
+{% block title %}Quản lý kho{% endblock %}
 {% block content %}
+
 <div class="max-w-7xl mx-auto p-8 bg-white dark:bg-gray-800 dark:text-gray-100 shadow rounded space-y-8">
-    <h2 class="text-3xl font-bold mb-4">Manage Inventory</h2>
-    
-    
+
+    <h2 class="text-3xl font-bold mb-4">Quản lý kho</h2>
+
+    <!-- Form thêm sản phẩm -->
     <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded shadow">
-        <h3 class="text-2xl font-semibold mb-4">Add New Item</h3>
-        
+        <h3 class="text-2xl font-semibold mb-4">Thêm sản phẩm mới</h3>
+
         <form method="post" action="/inventory/add">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <div>
-                    <label for="name" class="block text-gray-700 dark:text-gray-300">Name</label>
-                    <input type="text" id="name" name="name" required class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                    <label for="name" class="block text-gray-700 dark:text-gray-300">Tên sản phẩm</label>
+                    <input type="text" id="name" name="name" required
+                           class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                 </div>
+
                 <div>
-                    <label for="quantity" class="block text-gray-700 dark:text-gray-300">Quantity</label>
-                    <input type="number" id="quantity" name="quantity" required class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-6 00 dark:text-gray-100">
+                    <label for="quantity" class="block text-gray-700 dark:text-gray-300">Số lượng</label>
+                    <input type="number" id="quantity" name="quantity" required
+                           class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                 </div>
+
                 <div>
-                    <label for="price" class="block text-gray-700 dark:text-gray-300">Price</label>
-                    <input type="number" step="0.01" id="price" name="price" required class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                    <label for="price" class="block text-gray-700 dark:text-gray-300">Giá</label>
+                    <input type="number" step="0.01" id="price" name="price" required
+                           class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                 </div>
-                <div x-data="autocomplete({{ categories|default([])|tojson }})" x-init="query = ''" class="relative">
-                    <label for="category" class="block text-gray-700 dark:text-gray-300">Category</label>
-                    <input type="text" id="category" name="category" x-model="query" autocomplete="off" placeholder="Type or select category" class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
-                    
+
+                <!-- Danh mục có gợi ý -->
+                <div x-data="autocomplete({{ categories|default([])|tojson }})"
+                     x-init="query = ''" class="relative">
+                     <div>
+    <label for="supplier" class="block text-gray-700 dark:text-gray-300">Nhà cung cấp</label>
+    <input type="text" id="supplier" name="supplier"
+           placeholder="Nhập tên nhà cung cấp"
+           class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+</div>
+
+                    <label for="category" class="block text-gray-700 dark:text-gray-300">Danh mục</label>
+
+                    <input type="text" id="category" name="category" x-model="query" autocomplete="off"
+                           placeholder="Nhập hoặc chọn danh mục"
+                           class="w-full p-3 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+
                     <template x-if="filtered.length > 0">
                         <ul class="absolute z-10 w-full bg-white dark:bg-gray-800 border rounded mt-1">
                             <template x-for="item in filtered" :key="item.category_id">
-                                <li @click="select(item)" class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2" x-text="item.name"></li>
+                                <li @click="select(item)"
+                                    class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2"
+                                    x-text="item.name"></li>
                             </template>
                         </ul>
                     </template>
-                    
+
                     <input type="hidden" name="category_id" :value="selected ? selected.category_id : ''">
                 </div>
+
             </div>
+
             <div class="mt-4">
-                <button type="submit" class="w-full bg-green-500 text-white py-3 rounded hover:bg-green-600">Add Item</button>
+                <button type="submit"
+                        class="w-full bg-green-500 text-white py-3 rounded hover:bg-green-600">
+                    Thêm sản phẩm
+                </button>
             </div>
         </form>
     </div>
-    
-    
+
+
+    <!-- Danh sách sản phẩm -->
     <div>
-        <h3 class="text-2xl font-semibold mb-4">Existing Items</h3>
+        <h3 class="text-2xl font-semibold mb-4">Danh sách sản phẩm</h3>
+
         <div class="space-y-4">
             {% for item in items %}
-            <div x-data="{ editing: false, name: '{{ item.name }}', quantity: {{ item.quantity }}, price: {{ item.price }}, category_id: {{ item.category_id }} }" class="border dark:border-white-600 p-4 rounded">
+            <div x-data="{
+                    editing: false,
+                    name: '{{ item.name }}',
+                    quantity: {{ item.quantity }},
+                    price: {{ item.price }},
+                    category_id: {{ item.category_id }}
+                }"
+                class="border dark:border-gray-600 p-4 rounded">
+
+                <!-- Chế độ xem -->
                 <template x-if="!editing">
                     <div class="flex justify-between items-center">
+
                         <div>
-                            <span class="font-semibold text-xl text-gray-900 dark:text-gray-100" x-text="name"></span>
-                            <span class="ml-2 text-gray-600 dark:text-gray-300">({{ item.quantity }} units at $<span x-text="price"></span>)</span>
+                            <span class="font-semibold text-xl text-gray-900 dark:text-gray-100"
+                                  x-text="name"></span>
+
+                            <span class="ml-2 text-gray-600 dark:text-gray-300">
+    ({{ item.quantity }} đơn vị, giá <span x-text="price"></span> VND)
+</span>
                         </div>
+
                         <div>
-                            <button type="button" @click="editing = true" class="text-blue-500 hover:underline mr-4">Edit</button>
-                            <a href="/inventory/delete/{{ item.item_id }}" class="text-red-500 hover:underline">Delete</a>
+                            <button type="button" @click="editing = true"
+                                    class="text-blue-500 hover:underline mr-4">
+                                Chỉnh sửa
+                            </button>
+
+                            <a href="/inventory/delete/{{ item.item_id }}"
+                               class="text-red-500 hover:underline">
+                                Xóa
+                            </a>
                         </div>
+
                     </div>
                 </template>
+
+                <!-- Chế độ chỉnh sửa -->
                 <template x-if="editing">
                     <form method="post" action="/inventory/edit/{{ item.item_id }}" class="space-y-3">
+<div>
+    <label class="block text-gray-700 dark:text-gray-300">Nhà cung cấp:</label>
+    <input type="text" name="supplier"
+           placeholder="Nhập nhà cung cấp"
+           class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+</div>
+
                         <div>
-                            <label class="block text-gray-700 dark:text-gray-300">Name:</label>
-                            <input type="text" name="name" x-model="name" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                            <label class="block text-gray-700 dark:text-gray-300">Tên:</label>
+                            <input type="text" name="name" x-model="name"
+                                   class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                         </div>
+
                         <div>
-                            <label class="block text-gray-700 dark:text-gray-300">Quantity:</label>
-                            <input type="number" name="quantity" x-model="quantity" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                            <label class="block text-gray-700 dark:text-gray-300">Số lượng:</label>
+                            <input type="number" name="quantity" x-model="quantity"
+                                   class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                         </div>
+
                         <div>
-                            <label class="block text-gray-700 dark:text-gray-300">Price:</label>
-                            <input type="number" step="0.01" name="price" x-model="price" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                            <label class="block text-gray-700 dark:text-gray-300">Giá:</label>
+                            <input type="number" step="0.01" name="price" x-model="price"
+                                   class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                         </div>
+
                         <div>
-                            <label class="block text-gray-700 dark:text-gray-300">Category:</label>
-                            <input type="text" name="category" placeholder="Type new category (optional)" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                            <label class="block text-gray-700 dark:text-gray-300">Danh mục:</label>
+                            <input type="text" name="category"
+                                   placeholder="Nhập danh mục mới (không bắt buộc)"
+                                   class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+
                             <input type="hidden" name="category_id" value="{{ item.category_id }}">
                         </div>
+
                         <div class="flex justify-end space-x-2">
-                            <button type="button" @click="editing = false" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-600">Save</button>
+                            <button type="button" @click="editing = false"
+                                    class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded">
+                                Hủy
+                            </button>
+
+                            <button type="submit"
+                                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                Lưu
+                            </button>
                         </div>
+
                     </form>
                 </template>
+
             </div>
             {% else %}
-            <p>No inventory items to manage.</p>
+            <p>Không có sản phẩm nào trong kho.</p>
             {% endfor %}
         </div>
     </div>
+
+    <!-- Phân trang -->
     <div class="mt-4 flex justify-center">
         {% if prev_page %}
-            <a href="/inventory/manage?page={{ prev_page }}" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded mr-2">Previous</a>
+        <a href="/inventory/manage?page={{ prev_page }}"
+           class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded mr-2">
+            Trang trước
+        </a>
         {% endif %}
+
         {% if next_page %}
-            <a href="/inventory/manage?page={{ next_page }}" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded">Next</a>
+        <a href="/inventory/manage?page={{ next_page }}"
+           class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded">
+            Trang sau
+        </a>
         {% endif %}
     </div>
+
 </div>
+
 {% endblock %}

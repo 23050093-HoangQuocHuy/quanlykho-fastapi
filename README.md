@@ -5,25 +5,28 @@
 ### Sao chép kho lưu trữ
 
 ``` bash
-git clone <url_repo_cua_huy>
-cd <folder>
+git clone https://github.com/23050093-HoangQuocHuy/quanlykho-fastapi
+cd quanlykho-fastapi
 ```
 
 ### Cài đặt các gói
 
 ``` bash
+python -m venv .venv
+.\.venv\Scripts\Activate
 pip install -r requirements.txt
+
 ```
 
 ### Chạy ứng dụng
 
 ``` bash
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload --port 8500
 ```
 
 Visit:
 
-    http://127.0.0.1:8000
+    http://127.0.0.1:8500
 
 ------------------------------------------------------------------------
 
@@ -83,7 +86,11 @@ ERD-Image.png
 
 ## Những cải tiến trong tương lai
 
--   Export reports
--   Activity logs
--   Supplier analytics
--   AI reorder suggestions
+-  Multi-warehouse
+-  Export reports
+-  Activity logs
+-  Supplier analytics
+-  AI reorder suggestions
+-  Multi-warehouse
+-  stock transfers
+-  SKU management

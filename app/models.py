@@ -1,32 +1,60 @@
-from sqlalchemy import Column, Integer, String, Text, Numeric, ForeignKey, DateTime
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Text,
+    Numeric,
+    ForeignKey,
+    DateTime,
+    Table,
+)
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime, timezone
 
 
+# =========================
+# ASSOCIATION TABLE
+# =========================
+
+item_suppliers = Table(
+    "item_suppliers",
+    Base.metadata,
+    Column("id", Integer, primary_key=True, index=True),
+    Column("item_id", Integer, ForeignKey("inventory_items.item_id"), nullable=False),
+    Column("supplier_id", Integer, ForeignKey("suppliers.supplier_id"), nullable=False),
+    Column("created_at", DateTime, default=lambda: datetime.now(timezone.utc)),
+)
+
+
+# =========================
+# CATEGORY
+# =========================
+
 class Category(Base):
     __tablename__ = "categories"
 
     category_id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String, index=True, nullable=False)
     description = Column(Text)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc)) # lambda ensures dynamic time sets
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    # One category can have many inventory items. We can use this setup to access all inventory items that belong to a certain category
     items = relationship("InventoryItem", back_populates="category")
+
+
+# =========================
+# INVENTORY ITEM
+# =========================
 
 class InventoryItem(Base):
     __tablename__ = "inventory_items"
-    
+
     item_id = Column(Integer, primary_key=True, index=True)
-
-    # ✅ SKU – mã định danh duy nhất
     sku = Column(String(50), unique=True, index=True, nullable=False)
-
-    name = Column(String, index=True)
-    description = Column(String, index=True)
-    quantity = Column(Integer)
-    price = Column(Numeric)
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    quantity = Column(Integer, nullable=False)
+    price = Column(Numeric(10, 2), nullable=False)
 
     category_id = Column(Integer, ForeignKey("categories.category_id"), nullable=False)
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
@@ -35,64 +63,68 @@ class InventoryItem(Base):
     updated_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    category = relationship("Category", back_populates="items")
+
+    # ✅ MANY-TO-MANY ĐÚNG
+    suppliers = relationship(
+        "Supplier",
+        secondary=item_suppliers,
+        back_populates="items",
     )
 
 
-    # each inventory item belongs to exactly one category
-    category = relationship("Category", back_populates="items")
-    # many inventory items can have many suppliers (many-to-many relationship)
-    suppliers = relationship("ItemSupplier", back_populates="item")
-
+# =========================
+# SUPPLIER
+# =========================
 
 class Supplier(Base):
     __tablename__ = "suppliers"
 
     supplier_id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String, unique=True, nullable=False)
     contact_details = Column(Text)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    # many suppliers can supply many inventory items (a lit of items the supplier can supply)
-    items = relationship("ItemSupplier", back_populates="supplier")
+    items = relationship(
+        "InventoryItem",
+        secondary=item_suppliers,
+        back_populates="suppliers",
+    )
 
 
-class ItemSupplier(Base):
-    __tablename__ = "item_suppliers"
-
-    id = Column(Integer, primary_key=True, index=True)
-    item_id = Column(Integer, ForeignKey("inventory_items.item_id"), nullable=False)
-    supplier_id = Column(Integer, ForeignKey("suppliers.supplier_id"), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
-    item = relationship("InventoryItem", back_populates="suppliers")
-    supplier = relationship("Supplier", back_populates="items")
-
+# =========================
+# USER
+# =========================
 
 class User(Base):
     __tablename__ = "users"
+
     user_id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    password = Column(String)
-    role = Column(String)
+    username = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
+    role = Column(String, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    # user could have created many inventory items
+
     items_created = relationship("InventoryItem", backref="creator")
-    # user có thể tạo nhiều đơn hàng
     orders = relationship("Order", back_populates="user")
+
+
+# =========================
+# ORDER
+# =========================
 
 class Order(Base):
     __tablename__ = "orders"
 
     order_id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    status = Column(String, default="pending")  # pending / completed / cancelled
+    status = Column(String, default="pending")
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
 
-    # quan hệ tới User
     user = relationship("User", back_populates="orders")
-
-    # danh sách các dòng hàng trong đơn
     items = relationship("OrderItem", back_populates="order")
 
 
@@ -104,11 +136,7 @@ class OrderItem(Base):
     item_id = Column(Integer, ForeignKey("inventory_items.item_id"), nullable=False)
 
     quantity = Column(Integer, nullable=False)
-    price = Column(Numeric, nullable=False)  # giá tại thời điểm đặt hàng
+    price = Column(Numeric(10, 2), nullable=False)
 
-    # quan hệ tới Order
     order = relationship("Order", back_populates="items")
-
-    # quan hệ tới InventoryItem (1 dòng order tham chiếu 1 sản phẩm)
     item = relationship("InventoryItem")
-

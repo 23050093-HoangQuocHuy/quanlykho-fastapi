@@ -1,9 +1,7 @@
 from pydantic import BaseModel, condecimal, Field
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Annotated, ForwardRef, Optional
-
-SupplierRef = ForwardRef("Supplier")
+from typing import List, Annotated, Optional
 
 # =========================
 # CATEGORY
@@ -28,7 +26,36 @@ class Category(CategoryBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+# =========================
+# SUPPLIER
+# =========================
+
+class SupplierBase(BaseModel):
+    name: str
+    contact_details: Optional[str] = None
+
+
+class SupplierCreate(SupplierBase):
+    pass
+
+
+class SupplierUpdate(BaseModel):
+    name: Optional[str] = None
+    contact_details: Optional[str] = None
+
+
+class SupplierResponse(SupplierBase):
+    supplier_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class Supplier(SupplierResponse):
+    created_at: datetime
 
 
 # =========================
@@ -71,38 +98,11 @@ class InventoryItem(InventoryItemBase):
     created_by: int
     created_at: datetime
     updated_at: datetime
-    category: Optional[Category] = None   
-    suppliers: List["Supplier"] = []
+    category: Optional[Category] = None
+    suppliers: List[SupplierResponse] = []
 
     class Config:
         from_attributes = True
-
-
-
-# =========================
-# SUPPLIER
-# =========================
-
-class SupplierBase(BaseModel):
-    name: str
-    contact_details: Optional[str] = None
-
-
-class SupplierCreate(SupplierBase):
-    pass
-
-
-class SupplierUpdate(BaseModel):
-    name: Optional[str] = None
-    contact_details: Optional[str] = None
-
-
-class Supplier(SupplierBase):
-    supplier_id: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 # =========================
@@ -128,7 +128,7 @@ class User(UserBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserPasswordUpdate(BaseModel):
@@ -136,15 +136,12 @@ class UserPasswordUpdate(BaseModel):
     new_password: str = Field(..., min_length=8)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # =========================
 # ORDER
 # =========================
-
-InventoryItem.model_rebuild()
-
 
 class OrderItemBase(BaseModel):
     item_id: int

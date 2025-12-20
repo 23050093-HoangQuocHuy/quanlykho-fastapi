@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from passlib.context import CryptContext
 
 from app.models import (
-    InventoryItem, Category, Supplier, User, ItemSupplier,
+    InventoryItem, Category, Supplier, User,
     Order, OrderItem
 )
 from app import schemas
@@ -53,35 +53,28 @@ def create_item(db: Session, item: schemas.InventoryItemCreate):
         category_id=item.category_id,
         created_by=item.created_by
     )
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
 
-    # xử lý supplier
+    # 👉 xử lý supplier (GIỮ LOGIC CŨ, CHỈ ĐỔI CÁCH GÁN)
     if item.supplier and item.supplier.strip():
-        existing_supplier = db.query(Supplier).filter(
+        supplier = db.query(Supplier).filter(
             Supplier.name == item.supplier
         ).first()
 
-        if not existing_supplier:
-            new_supplier = Supplier(
+        if not supplier:
+            supplier = Supplier(
                 name=item.supplier,
                 contact_details=""
             )
-            db.add(new_supplier)
+            db.add(supplier)
             db.commit()
-            db.refresh(new_supplier)
-            supplier_id = new_supplier.supplier_id
-        else:
-            supplier_id = existing_supplier.supplier_id
+            db.refresh(supplier)
 
-        item_supplier_link = ItemSupplier(
-            item_id=db_item.item_id,
-            supplier_id=supplier_id
-        )
-        db.add(item_supplier_link)
-        db.commit()
+        # many-to-many chuẩn
+        db_item.suppliers.append(supplier)
 
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
     return db_item
 
 
@@ -115,7 +108,6 @@ def get_items(
         query = query.filter(InventoryItem.created_by == created_by)
 
     return query.offset(skip).limit(limit).all()
-
 
 
 def update_item(
@@ -175,9 +167,7 @@ def get_categories(
 ):
     query = db.query(Category)
     if search:
-        query = query.filter(
-            Category.name.ilike(f"%{search}%")
-        )
+        query = query.filter(Category.name.ilike(f"%{search}%"))
     return query.offset(skip).limit(limit).all()
 
 
@@ -227,9 +217,7 @@ def get_suppliers(
 ):
     query = db.query(Supplier)
     if search:
-        query = query.filter(
-            Supplier.name.ilike(f"%{search}%")
-        )
+        query = query.filter(Supplier.name.ilike(f"%{search}%"))
     return query.offset(skip).limit(limit).all()
 
 
@@ -298,9 +286,7 @@ def update_user_password(
     ):
         raise ValueError("Incorrect old password")
 
-    db_user.password = pwd_context.hash(
-        updates.new_password
-    )
+    db_user.password = pwd_context.hash(updates.new_password)
     db.commit()
     db.refresh(db_user)
     return db_user

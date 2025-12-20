@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Bảng điều khiển{% endblock %}
 {% block content %}
+
 <!-- JSON data for charts -->
 <script id="dashboard-data" type="application/json">
   {{ {
@@ -13,67 +14,92 @@
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-6">
-  <h1 class="text-3xl font-bold mb-6 text-center dark:text-gray-100">📊 Bảng điều khiển kho hàng</h1>
+  <h1 class="text-3xl font-bold mb-6 text-center dark:text-gray-100">
+    📊 Bảng điều khiển kho hàng
+  </h1>
 
   <!-- Key Metrics -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
-      <h2 class="text-xl font-semibold mb-2 dark:text-gray-100">Tổng giá trị kho hàng</h2>
-      <p class="text-2xl font-bold text-blue-600">${{ total_inventory_value }}</p>
+      <h2 class="text-xl font-semibold mb-2">Tổng giá trị kho hàng</h2>
+      <p class="text-2xl font-bold text-blue-600">
+        {{ "{:,.0f}".format(total_inventory_value) }} VND
+      </p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
       <h2 class="text-xl font-semibold mb-2">Tổng số nhà cung cấp</h2>
-      <p class="text-2xl font-bold text-green-600">{{ supplier_overview.unique_suppliers }}</p>
+      <p class="text-2xl font-bold text-green-600">
+        {{ supplier_overview.unique_suppliers }}
+      </p>
     </div>
   </div>
 
-  <!-- Charts Section -->
+  <!-- Charts -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
       <canvas id="categoryChart"></canvas>
-      <p class="text-sm text-gray-900 dark:text-gray-100 mt-2 text-center">
-        Phân bố sản phẩm theo từng danh mục.
+      <p class="text-sm text-center mt-2 dark:text-gray-300">
+        Phân bố sản phẩm theo danh mục
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow flex flex-col justify-center items-center h-64">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex flex-col items-center justify-center">
       <canvas id="priceChart" class="w-full max-w-xs h-40"></canvas>
-      <p class="text-sm text-gray-800 dark:text-gray-100 mt-4 text-center">
-        Thống kê sản phẩm theo mức giá.
+      <p class="text-sm text-center mt-4 dark:text-gray-300">
+        Thống kê theo mức giá
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 dark:text-gray-100 p-4 rounded shadow">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
       <canvas id="supplierChart"></canvas>
-      <p class="text-sm text-gray-800 dark:text-gray-100 mt-2 text-center">
-        Top nhà cung cấp theo số lượng sản phẩm.
+      <p class="text-sm text-center mt-2 dark:text-gray-300">
+        Top nhà cung cấp
       </p>
     </div>
   </div>
 
-  <!-- Low Stock Section -->
-  <div class="mt-10 bg-white dark:bg-gray-800 dark:text-gray-100 px-4 py-3 rounded shadow max-w-xl mx-auto">
-    <h2 class="text-xl font-semibold mb-3 text-center dark:text-gray-100">Sản phẩm sắp hết hàng</h2>
-    <ul class="space-y-2">
-      {% for item in low_stock_items %}
-        <li class="text-red-600 text-sm">🔻 {{ item.name }} (SL: {{ item.quantity }} )</li>
-      {% endfor %}
-    </ul>
+  <!-- Low stock -->
+  <div class="mt-10 bg-white dark:bg-gray-800 px-4 py-3 rounded shadow max-w-xl mx-auto">
+    <h2 class="text-xl font-semibold mb-3 text-center">
+      ⚠️ Sản phẩm sắp hết hàng
+    </h2>
+
+    {% if low_stock_items %}
+      <ul class="space-y-2">
+        {% for item in low_stock_items %}
+          <li class="text-red-600 text-sm">
+            🔻 {{ item.name }} (SL: {{ item.quantity }})
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-center text-gray-500 text-sm">
+        Không có sản phẩm nào sắp hết hàng
+      </p>
+    {% endif %}
   </div>
 
-  <!-- Recently Added Items Section -->
-  <div class="mt-10 bg-white dark:bg-gray-800 dark:text-gray-100 p-6 rounded shadow">
-    <h2 class="text-xl font-semibold mb-4 dark:text-gray-100">🕒 Sản phẩm mới thêm gần đây</h2>
+  <!-- Recent items -->
+  <div class="mt-10 bg-white dark:bg-gray-800 p-6 rounded shadow">
+    <h2 class="text-xl font-semibold mb-4">
+      🕒 Sản phẩm mới thêm
+    </h2>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {% for item in recent_items %}
-      <div class="border dark:border-gray-600 p-4 rounded shadow hover:shadow-lg transition">
-        <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ item.name }}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-300">SL: {{ item.quantity }} | ${{ "%.2f" % item.price }}</p>
-        <p class="text-xs text-gray-400 dark:text-gray-400">Ngày thêm: {{ item.created_at.strftime('%Y-%m-%d') }}</p>
-      </div>
+        <div class="border dark:border-gray-600 p-4 rounded hover:shadow-lg transition">
+          <h3 class="font-semibold">{{ item.name }}</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            SL: {{ item.quantity }} · {{ "{:,.0f}".format(item.price) }} VND
+          </p>
+          <p class="text-xs text-gray-400">
+            Ngày thêm: {{ item.created_at.strftime('%Y-%m-%d') }}
+          </p>
+        </div>
       {% endfor %}
     </div>
   </div>
 </div>
+
 {% endblock %}

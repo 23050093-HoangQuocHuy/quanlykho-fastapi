@@ -7,6 +7,8 @@ import jwt
 
 from app import models, schemas, crud
 from app.database import get_db
+from app.models import InventoryItem
+
 from app.models import User, Category
 from app.routes.auth import (
     create_access_token,
@@ -128,6 +130,7 @@ async def manage_inventory(
     request: Request,
     sku: str | None = None,
     page: int = 1,
+    error: str | None = None,  # 👈 THÊM
     current_user: User = Depends(get_current_user_from_cookie),
     db: Session = Depends(get_db),
 ):
@@ -160,8 +163,10 @@ async def manage_inventory(
             "prev_page": prev_page,
             "next_page": next_page,
             "categories": categories_data,
+            "error": error,  # 👈 TRUYỀN SANG FE
         },
     )
+
 
 
 # =====================================
@@ -224,6 +229,15 @@ async def add_inventory_item(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_from_cookie),
 ):
+    # 🔴 CHECK SKU TRÙNG
+    existing = db.query(InventoryItem).filter(InventoryItem.sku == sku).first()
+    if existing:
+        return RedirectResponse(
+            url="/inventory/manage?error=Mã sản phẩm đã tồn tại",
+            status_code=302
+        )
+
+    # ===== LOGIC CŨ GIỮ NGUYÊN =====
     if category_id:
         cat_id = int(category_id)
     else:
@@ -247,6 +261,7 @@ async def add_inventory_item(
 
     crud.create_item(db, item)
     return RedirectResponse("/inventory/manage", status_code=302)
+
 
 
 @router.post("/inventory/edit/{item_id}")

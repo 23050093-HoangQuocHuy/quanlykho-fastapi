@@ -6,10 +6,17 @@
 
     <h2 class="text-3xl font-bold">Quản lý kho</h2>
 
+    <!-- ================= ERROR MESSAGE ================= -->
+    {% if error %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
     <!-- ================= SEARCH SKU ================= -->
     <form method="get" action="/inventory/manage" class="flex gap-4">
         <input type="text" name="sku" value="{{ sku or '' }}"
-               placeholder="Tìm theo SKU (VD: SKU-MOUSE-001)"
+               placeholder="Tìm theo Mã sản phẩm (VD: SKU-MOUSE-001)"
                class="flex-1 p-3 border rounded dark:bg-gray-700 dark:border-gray-600">
         <button type="submit"
                 class="px-6 bg-blue-500 text-white rounded hover:bg-blue-600">
@@ -24,7 +31,7 @@
         <form method="post" action="/inventory/add" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div>
-                <label>SKU *</label>
+                <label>Mã sản phẩm *</label>
                 <input name="sku" required placeholder="SKU-MOUSE-001"
                        class="w-full p-3 border rounded">
             </div>
@@ -91,7 +98,9 @@
             <template x-if="!edit">
                 <div class="flex justify-between">
                     <div>
-                        <div class="text-sm font-mono text-gray-500">SKU: {{ item.sku }}</div>
+                        <div class="text-sm font-mono text-gray-500">
+                            Mã sản phẩm: {{ item.sku }}
+                        </div>
                         <div class="font-semibold text-lg">{{ item.name }}</div>
                         <div>{{ item.quantity }} · {{ item.price }} VND</div>
                     </div>
@@ -109,14 +118,14 @@
                       class="grid grid-cols-1 md:grid-cols-2 gap-3">
 
                     <div>
-                        <label>SKU</label>
+                        <label>Mã sản phẩm</label>
                         <input value="{{ item.sku }}" disabled
                                class="w-full p-2 bg-gray-200 border rounded">
                         <input type="hidden" name="sku" value="{{ item.sku }}">
                     </div>
 
                     <div>
-                        <label>Tên</label>
+                        <label>Tên sản phẩm</label>
                         <input name="name" value="{{ item.name }}"
                                class="w-full p-2 border rounded">
                     </div>
@@ -156,18 +165,6 @@
         {% else %}
         <p>Không có sản phẩm</p>
         {% endfor %}
-    </div>
-
-    <!-- ================= PAGINATION ================= -->
-    <div class="flex justify-center gap-4">
-        {% if prev_page %}
-        <a href="?page={{ prev_page }}&sku={{ sku or '' }}"
-           class="px-4 py-2 bg-gray-300 rounded">Trước</a>
-        {% endif %}
-        {% if next_page %}
-        <a href="?page={{ next_page }}&sku={{ sku or '' }}"
-           class="px-4 py-2 bg-gray-300 rounded">Sau</a>
-        {% endif %}
     </div>
 
 </div>

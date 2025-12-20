@@ -19,14 +19,25 @@ class InventoryItem(Base):
     __tablename__ = "inventory_items"
     
     item_id = Column(Integer, primary_key=True, index=True)
+
+    # ✅ SKU – mã định danh duy nhất
+    sku = Column(String(50), unique=True, index=True, nullable=False)
+
     name = Column(String, index=True)
     description = Column(String, index=True)
     quantity = Column(Integer)
     price = Column(Numeric)
+
     category_id = Column(Integer, ForeignKey("categories.category_id"), nullable=False)
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )
+
 
     # each inventory item belongs to exactly one category
     category = relationship("Category", back_populates="items")

@@ -8,13 +8,13 @@ from app.models import (
 )
 from app import schemas
 
-# ===== Thêm import email =====
+# ===== Email =====
 from app.email_utils import send_email_alert
 import asyncio
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-LOW_STOCK_THRESHOLD = 10   # Ngưỡng cảnh báo
+LOW_STOCK_THRESHOLD = 10
 
 
 # -----------------------------------------
@@ -27,11 +27,25 @@ def get_item_by_user(db: Session, item_id: int, user_id: int):
     ).first()
 
 
+def get_item_by_sku(db: Session, sku: str):
+    return db.query(InventoryItem).filter(
+        InventoryItem.sku == sku
+    ).first()
+
+
 # -----------------------------------------
 # Inventory CRUD
 # -----------------------------------------
 def create_item(db: Session, item: schemas.InventoryItemCreate):
+    # ❗ CHECK SKU UNIQUE
+    if get_item_by_sku(db, item.sku):
+        raise HTTPException(
+            status_code=400,
+            detail="SKU đã tồn tại"
+        )
+
     db_item = InventoryItem(
+        sku=item.sku,
         name=item.name,
         description=item.description,
         quantity=item.quantity,
@@ -45,10 +59,15 @@ def create_item(db: Session, item: schemas.InventoryItemCreate):
 
     # xử lý supplier
     if item.supplier and item.supplier.strip():
-        existing_supplier = db.query(Supplier).filter(Supplier.name == item.supplier).first()
+        existing_supplier = db.query(Supplier).filter(
+            Supplier.name == item.supplier
+        ).first()
 
         if not existing_supplier:
-            new_supplier = Supplier(name=item.supplier, contact_details="")
+            new_supplier = Supplier(
+                name=item.supplier,
+                contact_details=""
+            )
             db.add(new_supplier)
             db.commit()
             db.refresh(new_supplier)
@@ -56,7 +75,10 @@ def create_item(db: Session, item: schemas.InventoryItemCreate):
         else:
             supplier_id = existing_supplier.supplier_id
 
-        item_supplier_link = ItemSupplier(item_id=db_item.item_id, supplier_id=supplier_id)
+        item_supplier_link = ItemSupplier(
+            item_id=db_item.item_id,
+            supplier_id=supplier_id
+        )
         db.add(item_supplier_link)
         db.commit()
 
@@ -64,27 +86,57 @@ def create_item(db: Session, item: schemas.InventoryItemCreate):
 
 
 def get_item(db: Session, item_id: int):
-    return db.query(InventoryItem).filter(InventoryItem.item_id == item_id).first()
+    return db.query(InventoryItem).filter(
+        InventoryItem.item_id == item_id
+    ).first()
 
 
-def get_items(db: Session, skip: int = 0, limit: int = 10, search: str | None = None,
-              category_id: int | None = None, created_by: int | None = None):
+def get_items(
+    db: Session,
+    skip: int = 0,
+    limit: int = 10,
+    sku: str | None = None,
+    name: str | None = None,
+    category_id: int | None = None,
+    created_by: int | None = None
+):
     query = db.query(InventoryItem)
 
-    if search:
-        query = query.filter(InventoryItem.name.ilike(f"%{search}%"))
+    if sku:
+        query = query.filter(InventoryItem.sku.ilike(f"%{sku}%"))
+
+    if name:
+        query = query.filter(InventoryItem.name.ilike(f"%{name}%"))
+
     if category_id:
         query = query.filter(InventoryItem.category_id == category_id)
+
     if created_by:
         query = query.filter(InventoryItem.created_by == created_by)
 
     return query.offset(skip).limit(limit).all()
 
 
-def update_item(db: Session, db_item: InventoryItem, updates: schemas.InventoryItemUpdate):
+
+def update_item(
+    db: Session,
+    db_item: InventoryItem,
+    updates: schemas.InventoryItemUpdate
+):
     update_data = updates.model_dump(exclude_unset=True)
+
+    # ❗ CHECK SKU TRÙNG KHI UPDATE
+    if "sku" in update_data:
+        existing = get_item_by_sku(db, update_data["sku"])
+        if existing and existing.item_id != db_item.item_id:
+            raise HTTPException(
+                status_code=400,
+                detail="SKU đã tồn tại"
+            )
+
     for key, value in update_data.items():
         setattr(db_item, key, value)
+
     db.commit()
     db.refresh(db_item)
     return db_item
@@ -110,17 +162,30 @@ def create_category(db: Session, category: schemas.CategoryCreate):
 
 
 def get_category(db: Session, category_id: int):
-    return db.query(Category).filter(Category.category_id == category_id).first()
+    return db.query(Category).filter(
+        Category.category_id == category_id
+    ).first()
 
 
-def get_categories(db: Session, skip: int = 0, limit: int = 10, search: str | None = None):
+def get_categories(
+    db: Session,
+    skip: int = 0,
+    limit: int = 10,
+    search: str | None = None
+):
     query = db.query(Category)
     if search:
-        query = query.filter(Category.name.ilike(f"%{search}%"))
+        query = query.filter(
+            Category.name.ilike(f"%{search}%")
+        )
     return query.offset(skip).limit(limit).all()
 
 
-def update_category(db: Session, db_category: Category, updates: schemas.CategoryUpdate):
+def update_category(
+    db: Session,
+    db_category: Category,
+    updates: schemas.CategoryUpdate
+):
     update_data = updates.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_category, key, value)
@@ -149,17 +214,30 @@ def create_supplier(db: Session, supplier: schemas.SupplierCreate):
 
 
 def get_supplier(db: Session, supplier_id: int):
-    return db.query(Supplier).filter(Supplier.supplier_id == supplier_id).first()
+    return db.query(Supplier).filter(
+        Supplier.supplier_id == supplier_id
+    ).first()
 
 
-def get_suppliers(db: Session, skip: int = 0, limit: int = 10, search: str | None = None):
+def get_suppliers(
+    db: Session,
+    skip: int = 0,
+    limit: int = 10,
+    search: str | None = None
+):
     query = db.query(Supplier)
     if search:
-        query = query.filter(Supplier.name.ilike(f"%{search}%"))
+        query = query.filter(
+            Supplier.name.ilike(f"%{search}%")
+        )
     return query.offset(skip).limit(limit).all()
 
 
-def update_supplier(db: Session, db_supplier: Supplier, updates: schemas.SupplierUpdate):
+def update_supplier(
+    db: Session,
+    db_supplier: Supplier,
+    updates: schemas.SupplierUpdate
+):
     update_data = updates.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_supplier, key, value)
@@ -191,10 +269,16 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 
 def get_user(db: Session, user_id: int):
-    return db.query(User).filter(User.user_id == user_id).first()
+    return db.query(User).filter(
+        User.user_id == user_id
+    ).first()
 
 
-def update_user(db: Session, db_user: User, updates: schemas.UserUpdate):
+def update_user(
+    db: Session,
+    db_user: User,
+    updates: schemas.UserUpdate
+):
     update_data = updates.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_user, key, value)
@@ -203,12 +287,20 @@ def update_user(db: Session, db_user: User, updates: schemas.UserUpdate):
     return db_user
 
 
-def update_user_password(db: Session, db_user: User, updates: schemas.UserPasswordUpdate):
-    if not pwd_context.verify(updates.old_password, db_user.password):
+def update_user_password(
+    db: Session,
+    db_user: User,
+    updates: schemas.UserPasswordUpdate
+):
+    if not pwd_context.verify(
+        updates.old_password,
+        db_user.password
+    ):
         raise ValueError("Incorrect old password")
 
-    new_hashed = pwd_context.hash(updates.new_password)
-    db_user.password = new_hashed
+    db_user.password = pwd_context.hash(
+        updates.new_password
+    )
     db.commit()
     db.refresh(db_user)
     return db_user
@@ -223,10 +315,13 @@ def delete_user(db: Session, user_id: int):
 
 
 # -----------------------------------------
-# ORDER CRUD (ĐÃ THÊM EMAIL ALERT)
+# ORDER CRUD (EMAIL ALERT)
 # -----------------------------------------
-def create_order(db: Session, user_id: int, order_data: schemas.OrderCreate):
-    # Tạo đơn hàng
+def create_order(
+    db: Session,
+    user_id: int,
+    order_data: schemas.OrderCreate
+):
     order = Order(
         created_by=user_id,
         status="pending"
@@ -235,7 +330,6 @@ def create_order(db: Session, user_id: int, order_data: schemas.OrderCreate):
     db.commit()
     db.refresh(order)
 
-    # Duyệt qua từng item trong đơn hàng
     for item in order_data.items:
         db_item = db.query(InventoryItem).filter(
             InventoryItem.item_id == item.item_id,
@@ -243,39 +337,28 @@ def create_order(db: Session, user_id: int, order_data: schemas.OrderCreate):
         ).first()
 
         if not db_item:
-            raise HTTPException(status_code=404, detail=f"Sản phẩm ID {item.item_id} không tồn tại.")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Sản phẩm ID {item.item_id} không tồn tại."
+            )
 
-        # Kiểm tra tồn kho
         if db_item.quantity < item.quantity:
             raise HTTPException(
                 status_code=400,
                 detail=f"Sản phẩm '{db_item.name}' không đủ tồn kho."
             )
 
-        # Trừ tồn kho
         db_item.quantity -= item.quantity
-        db.add(db_item)
 
-        # ===============================
-        # ⚠️ KIỂM TRA LOW-STOCK & GỬI EMAIL
-        # ===============================
         if db_item.quantity <= LOW_STOCK_THRESHOLD:
-            subject = f"Cảnh báo tồn kho thấp: {db_item.name}"
-            body = (
-                f"Sản phẩm '{db_item.name}' hiện còn {db_item.quantity} trong kho.\n"
-                f"Bạn nên nhập thêm hàng!"
-            )
-
-            # gửi email nền
             asyncio.create_task(
                 send_email_alert(
-                    to_email="huy1995303@gmail.com",   
-                    subject=subject,
-                    message=body
+                    to_email="huy1995303@gmail.com",
+                    subject=f"Cảnh báo tồn kho thấp: {db_item.name}",
+                    message=f"Sản phẩm '{db_item.name}' còn {db_item.quantity}"
                 )
             )
 
-        # Lưu chi tiết đơn hàng
         order_item = OrderItem(
             order_id=order.order_id,
             item_id=item.item_id,
@@ -294,7 +377,12 @@ def get_orders(db: Session):
 
 
 def get_order(db: Session, order_id: int):
-    order = db.query(Order).filter(Order.order_id == order_id).first()
+    order = db.query(Order).filter(
+        Order.order_id == order_id
+    ).first()
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Order not found"
+        )
     return order

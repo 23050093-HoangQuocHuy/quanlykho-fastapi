@@ -50,9 +50,7 @@ Visit:
 
 ``` env
 SECRET_KEY=your_secret_key_here
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-REDIRECT_URI=http://localhost:8500/auth/google/callback
+
 ```
 
 ------------------------------------------------------------------------

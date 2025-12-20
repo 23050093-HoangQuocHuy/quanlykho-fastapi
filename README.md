@@ -61,7 +61,7 @@ SECRET_KEY=your_secret_key_here
 -   Orders system (auto stock deduction)
 -   Dashboard with charts
 -   Authentication (JWT Cookies)
--   Google OAuth Login
+-   SKU management
 -   VND currency only
 -   TailwindCSS UI
 -   Dark Mode
@@ -101,10 +101,9 @@ ERD-Image.png
 ## 12. Những cải tiến trong tương lai
 
 -  Multi-warehouse
+-  stock transfers
 -  Export reports
 -  Activity logs
 -  Supplier analytics
 -  AI reorder suggestions
--  Multi-warehouse
--  stock transfers
--  SKU management
+

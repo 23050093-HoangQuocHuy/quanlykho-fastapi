@@ -1,22 +1,38 @@
 from fastapi_mail import ConnectionConfig
 from pydantic import BaseModel
+import os
 
 
 class MailConfig(BaseModel):
-    MAIL_USERNAME: str = "huy1995303@gmail.com"
-    MAIL_PASSWORD: str = "bamclyajqqsujanf"
-    MAIL_FROM: str = "huy1995303@gmail.com"
-    MAIL_PORT: int = 587
-    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
 
-    # FastAPI-Mail V2 requires these exact fields
     MAIL_STARTTLS: bool = True
     MAIL_SSL_TLS: bool = False
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
 
 
-mail_settings = MailConfig()
+# ====== LOCAL DEFAULT (GMAIL) ======
+MAIL_USERNAME = os.getenv("MAIL_USERNAME", "huy1995303@gmail.com")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "bamclyajqqsujanf")
+MAIL_FROM = os.getenv("MAIL_FROM", "huy1995303@gmail.com")
+
+MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+MAIL_PORT = int(os.getenv("MAIL_PORT", 587))
+
+
+mail_settings = MailConfig(
+    MAIL_USERNAME=MAIL_USERNAME,
+    MAIL_PASSWORD=MAIL_PASSWORD,
+    MAIL_FROM=MAIL_FROM,
+    MAIL_SERVER=MAIL_SERVER,
+    MAIL_PORT=MAIL_PORT,
+)
+
 
 mail_config = ConnectionConfig(
     MAIL_USERNAME=mail_settings.MAIL_USERNAME,

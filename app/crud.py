@@ -12,7 +12,18 @@ from app import schemas
 from app.email_utils import send_email_alert
 import asyncio
 
+# -----------------------------------------
+# Password - bcrypt safe
+# -----------------------------------------
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+MAX_BCRYPT_LENGTH = 72  # bcrypt chỉ hỗ trợ tối đa 72 bytes
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password[:MAX_BCRYPT_LENGTH])
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password[:MAX_BCRYPT_LENGTH], hashed_password)
+
 
 LOW_STOCK_THRESHOLD = 10
 
@@ -37,7 +48,6 @@ def get_item_by_sku(db: Session, sku: str):
 # Inventory CRUD
 # -----------------------------------------
 def create_item(db: Session, item: schemas.InventoryItemCreate):
-    # ❗ CHECK SKU UNIQUE
     if get_item_by_sku(db, item.sku):
         raise HTTPException(
             status_code=400,
@@ -54,7 +64,6 @@ def create_item(db: Session, item: schemas.InventoryItemCreate):
         created_by=item.created_by
     )
 
-    # 👉 xử lý supplier (GIỮ LOGIC CŨ, CHỈ ĐỔI CÁCH GÁN)
     if item.supplier and item.supplier.strip():
         supplier = db.query(Supplier).filter(
             Supplier.name == item.supplier
@@ -69,7 +78,6 @@ def create_item(db: Session, item: schemas.InventoryItemCreate):
             db.commit()
             db.refresh(supplier)
 
-        # many-to-many chuẩn
         db_item.suppliers.append(supplier)
 
     db.add(db_item)
@@ -117,7 +125,6 @@ def update_item(
 ):
     update_data = updates.model_dump(exclude_unset=True)
 
-    # ❗ CHECK SKU TRÙNG KHI UPDATE
     if "sku" in update_data:
         existing = get_item_by_sku(db, update_data["sku"])
         if existing and existing.item_id != db_item.item_id:
@@ -246,7 +253,7 @@ def delete_supplier(db: Session, supplier_id: int):
 # User CRUD
 # -----------------------------------------
 def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = pwd_context.hash(user.password)
+    hashed_password = hash_password(user.password)
     user_data = user.model_dump()
     user_data["password"] = hashed_password
     db_user = User(**user_data)
@@ -280,13 +287,10 @@ def update_user_password(
     db_user: User,
     updates: schemas.UserPasswordUpdate
 ):
-    if not pwd_context.verify(
-        updates.old_password,
-        db_user.password
-    ):
+    if not verify_password(updates.old_password, db_user.password):
         raise ValueError("Incorrect old password")
 
-    db_user.password = pwd_context.hash(updates.new_password)
+    db_user.password = hash_password(updates.new_password)
     db.commit()
     db.refresh(db_user)
     return db_user

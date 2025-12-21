@@ -1,6 +1,10 @@
 from fastapi_mail import ConnectionConfig
 from pydantic import BaseModel
+from dotenv import load_dotenv
 import os
+
+# Load .env for LOCAL
+load_dotenv()
 
 
 class MailConfig(BaseModel):
@@ -16,13 +20,18 @@ class MailConfig(BaseModel):
     VALIDATE_CERTS: bool = True
 
 
-# ====== LOCAL DEFAULT (GMAIL) ======
-MAIL_USERNAME = os.getenv("MAIL_USERNAME", "huy1995303@gmail.com")
-MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "bamclyajqqsujanf")
-MAIL_FROM = os.getenv("MAIL_FROM", "huy1995303@gmail.com")
+# ====== ENV VARIABLES ONLY ======
+MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+MAIL_FROM = os.getenv("MAIL_FROM")
 
-MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-MAIL_PORT = int(os.getenv("MAIL_PORT", 587))
+MAIL_SERVER = os.getenv("MAIL_SERVER")
+MAIL_PORT = int(os.getenv("MAIL_PORT", 587))  # fallback an toàn
+
+
+# ====== VALIDATION ======
+if not all([MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM, MAIL_SERVER]):
+    raise RuntimeError("❌ Missing MAIL environment variables")
 
 
 mail_settings = MailConfig(
